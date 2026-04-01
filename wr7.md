@@ -296,3 +296,95 @@ crontab -l
 - Файли створюються автоматично та містять очікувані результати.
 - Виконання задач відповідає запланованому часу та дням.
 - Демонстраційні задачі дозволили перевірити річні, місячні, щоденні та годинні завдання одразу.
+
+## Пункт 3. Використання альтернативного планувальника задач (systemd timer)
+
+## 3.1 Мета
+
+Встановити альтернативний Cron’у планувальник задач на основі systemd timers і продемонструвати виконання задач, аналогічних тим, що були створені через Cron у пункті 2.
+
+### 3.2 Створення сервісу systemd
+
+Створюємо файл сервісу /etc/systemd/system/demo_task.service:
+```bash
+[Unit]
+Description=Demo task executed by systemd timer
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'echo "Demo task executed (systemd timer)" >> /home/yaroslava/systemd_task.txt'
+```
+
+<img width="1032" height="292" alt="image" src="https://github.com/user-attachments/assets/8f24e66e-5481-4f6f-980c-92e3c4bea129" />
+
+Пояснення:
+- Type=oneshot - вказує, що сервіс виконується одноразово і завершується.
+- ExecStart - команда, яка виконується. У нашому випадку записує рядок у файл.
+  
+### 3.3 Створення таймера systemd
+
+Створюємо файл таймера /etc/systemd/system/demo_task.timer:
+```bash
+[Unit]
+Description=Run demo_task.service at a specific time
+
+[Timer]
+OnCalendar=*-*-* 15:50:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+```
+
+<img width="993" height="313" alt="image" src="https://github.com/user-attachments/assets/bd494a70-7cc2-4dc9-8f85-08c78edcf40d" />
+
+Пояснення:
+- OnCalendar - встановлює час запуску задачі (15:50:00).
+- Persistent=true - гарантує, що задача виконається навіть якщо таймер був пропущений через вимкнення системи.
+- WantedBy=timers.target - робить таймер частиною стандартного набору systemd timers.
+  
+### 3.4 Активація таймера
+```bash
+sudo systemctl enable --now demo_task.timer
+```
+
+<img width="1097" height="42" alt="image" src="https://github.com/user-attachments/assets/a7d6b83c-6184-42c8-ac18-9e19444d39c3" />
+
+Пояснення:
+- enable - встановлює автозапуск таймера при завантаженні системи.
+- --now - одразу запускає таймер.
+  
+### 3.5 Перевірка таймера
+```bash
+systemctl list-timers
+```
+
+<img width="1559" height="770" alt="image" src="https://github.com/user-attachments/assets/a961b859-acca-4748-b5af-512834f1ca16" />
+
+Пояснення:
+- Показує список всіх активних таймерів та їх наступний час спрацювання.
+- У колонці NEXT видно, коли таймер виконає задачу наступного разу.
+  
+### 3.6 Результат виконання задачі
+
+Після спрацювання таймера вказана команда записала повідомлення у файл:
+```bash
+cat /home/yaroslava/systemd_task.txt
+```
+Вивід:
+
+<img width="648" height="82" alt="image" src="https://github.com/user-attachments/assets/51070eae-06fb-48a3-9e0a-5c3ec46125db" />
+
+Пояснення:
+- Це демонструє, що задача, запланована через systemd timer, успішно виконана.
+- Таким чином, альтернативний планувальник задач до Cron працює коректно.
+
+## Conclusion
+
+During the laboratory work, the principles of task scheduling in operating systems were studied. The capabilities of task schedulers in different operating systems were analyzed, with a comparison between Linux and Windows tools.
+
+The Cron scheduler in Linux was explored in detail, and various types of tasks were created and configured, including execution at a specific time, multiple times per day, on weekdays, as well as periodic tasks (hourly, daily, monthly, and yearly).
+
+In addition, an alternative scheduling mechanism, systemd timers, was investigated. A corresponding service and timer were created, activated, and tested to ensure correct operation.
+
+As a result, practical skills in configuring automated task execution in Linux were obtained, which are essential for system administration and process automation.
