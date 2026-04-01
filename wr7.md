@@ -83,8 +83,6 @@ Hello Cron
 Hello Cron
 ```
 
-Відкриття редактора crontab (crontab -e)
-
 <img width="785" height="502" alt="image" src="https://github.com/user-attachments/assets/bf3fd7bf-abc5-4b87-a6c7-27b300f9cb07" />
 
 Рис. 1 – Відкриття редактора crontab
